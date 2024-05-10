@@ -1,5 +1,4 @@
 import os
-import openai
 import chainlit as cl
 
 from llama_index.core import (
@@ -9,13 +8,12 @@ from llama_index.core import (
     SimpleDirectoryReader,
     load_index_from_storage,
 )
-from llama_index.llms.openai import OpenAI
-from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.llms.llama import LLaMA
+from llama_index.embeddings.llama import LLaMAEmbedding
 from llama_index.core.query_engine.retriever_query_engine import RetrieverQueryEngine
 from llama_index.core.callbacks import CallbackManager
 from llama_index.core.service_context import ServiceContext
-
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+from llama_index.llms.ollama import Ollama
 
 try:
     # rebuild storage context
@@ -27,13 +25,12 @@ except:
     index = VectorStoreIndex.from_documents(documents)
     index.storage_context.persist()
 
-
 @cl.on_chat_start
 async def start():
-    Settings.llm = OpenAI(
-        model="gpt-3.5-turbo", temperature=0.1, max_tokens=1024, streaming=True
+    Settings.llm = LLaMA(
+        model="llama3", temperature=0.1, max_tokens=1024, streaming=True
     )
-    Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
+    Settings.embed_model = LLaMAEmbedding(model="llama3-embedding")
     Settings.context_window = 4096
 
     service_context = ServiceContext.from_defaults(callback_manager=CallbackManager([cl.LlamaIndexCallbackHandler()]))
@@ -41,13 +38,12 @@ async def start():
     cl.user_session.set("query_engine", query_engine)
 
     await cl.Message(
-        author="Assistant", content="Hello! Im an AI assistant. How may I help you?"
+        author="Assistant", content="Hello! I'm an AI assistant. How may I help you?"
     ).send()
-
 
 @cl.on_message
 async def main(message: cl.Message):
-    query_engine = cl.user_session.get("query_engine") # type: RetrieverQueryEngine
+    query_engine = cl.user_session.get("query_engine")  # type: RetrieverQueryEngine
 
     msg = cl.Message(content="", author="Assistant")
 
