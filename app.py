@@ -8,7 +8,9 @@ from llama_index.core import (
     SimpleDirectoryReader,
     load_index_from_storage,
 )
-from llama_index.llms.llama import LLaMA
+#ModuleNotFoundError: No module named 'llama_index.llms.llama'
+
+#from llama_index.llms.llama import LLaMA
 from llama_index.embeddings.llama import LLaMAEmbedding
 from llama_index.core.query_engine.retriever_query_engine import RetrieverQueryEngine
 from llama_index.core.callbacks import CallbackManager
